@@ -3,7 +3,7 @@
 # 以SFS为例, 其包含超级块、Inode位图以及数据区, 假设超级块占据1个块, 
 # Inode位图占据15个块, 则Layout可表示为: 
 # 
-# | BSIZE = 512 B |
+# | BSIZE = 1024 B |
 # | Super(1) | Inode Map(15) | DATA(*) |
 # 
 # 其中: 
@@ -20,4 +20,4 @@
 #    实际的数据块数量一致.
 
 | BSIZE = 1024 B |
-| Super(1) | Inode Map(1) | DATA Map(1) | INODE(1) | DATA(*) |
+| Super(1) | Inode Map(1) | DATA Map(1) | INODE(64) | DATA(*) |
