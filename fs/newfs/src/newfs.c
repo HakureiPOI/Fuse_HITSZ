@@ -52,14 +52,19 @@ static struct fuse_operations operations = {
  * @return void*
  */
 void* newfs_init(struct fuse_conn_info *conn_info) {
-	/* 初始化文件系统 */
-	if (nfs_mount(nfs_options) != 0) {
-		NFS_DBG("[%s] mount error\n", __func__);
-		fuse_exit(fuse_get_context()->fuse);
-		return NULL;
-	}
+    // 尝试挂载文件系统
+    int mount_result = nfs_mount(nfs_options);
 
-	return NULL;
+    if (mount_result) {  // 如果挂载失败
+        NFS_DBG("[%s] 挂载错误\n", __func__);  // 使用中文描述错误信息
+        struct fuse_context *ctx = fuse_get_context();
+        if (ctx && ctx->fuse) {
+            fuse_exit(ctx->fuse);  // 确保上下文有效后再退出
+        }
+        return NULL;
+    }
+
+    return NULL;  // 成功挂载后返回
 }
 
 /**
@@ -69,12 +74,17 @@ void* newfs_init(struct fuse_conn_info *conn_info) {
  * @return void
  */
 void newfs_destroy(void* p) {
-	/* 清理文件系统资源 */
-	if (nfs_umount() != NFS_ERROR_NONE) {
-		NFS_DBG("[%s] unmount error\n", __func__);
-		fuse_exit(fuse_get_context()->fuse);
-		return;
-	}
+    // 清理文件系统资源
+    int unmount_result = nfs_umount();
+
+    if (unmount_result != NFS_ERROR_NONE) {  // 如果卸载失败
+        NFS_DBG("[%s] 卸载错误\n", __func__);  // 使用中文描述错误信息
+        struct fuse_context *ctx = fuse_get_context();
+        if (ctx && ctx->fuse) {
+            fuse_exit(ctx->fuse);  // 确保上下文有效后再退出
+        }
+        return;
+    }
 }
 
 /**
